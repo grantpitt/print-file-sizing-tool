@@ -13,8 +13,7 @@
     target: HTMLInputElement & EventTarget;
   };
 
-  async function handleFileUpload(event: FileUploadEvent) {
-    const file = event?.target?.files?.[0];
+  async function handleFileUpload(file?: File) {
     if (!file) {
       return;
     }
@@ -55,6 +54,49 @@
   function roundToNearestPointFive(value: number) {
     return Math.round(value * 2) / 2;
   }
+
+  const commonSizes = [
+    {
+      width: 3.5,
+      height: 2.0,
+      useCase: "Business cards",
+    },
+    {
+      width: 4.0,
+      height: 6.0,
+      useCase: "Postcards, small flyers",
+    },
+    {
+      width: 5.5,
+      height: 8.5,
+      useCase: "Small booklets, pamphlets",
+    },
+    {
+      width: 8.5,
+      height: 11.0,
+      useCase: "Standard letter documents",
+    },
+    {
+      width: 18.0,
+      height: 24.0,
+      useCase: "Posters, advertising displays",
+    },
+    {
+      width: 24.0,
+      height: 36.0,
+      useCase: "Large posters, banners",
+    },
+    {
+      width: 33.5,
+      height: 80.0,
+      useCase: "Roll-up banners",
+    },
+    {
+      width: 36.0,
+      height: 24.0,
+      useCase: "Large posters, displays",
+    },
+  ];
 </script>
 
 <main class="mx-auto my-8 px-4 max-w-3xl">
@@ -67,8 +109,21 @@
       id="artwork"
       name="artwork"
       accept="image/png, image/jpeg"
-      on:change={handleFileUpload}
+      on:change={(e) => handleFileUpload(e.target.files[0])}
     />
+
+    <!-- a nice simple drag and drop ares -->
+    <div
+      class="border border-dashed border-gray-400 p-8 mt-4 bg-gray-50"
+      on:drop={(e) => {
+        e.preventDefault();
+        handleFileUpload(e.dataTransfer.files[0]);
+      }}
+      on:dragover={(e) => e.preventDefault()}
+    >
+      <p class="text-center text-gray-700">Drag and drop your file here</p>
+    </div>
+
   </section>
 
   {#if fileInfo}
@@ -136,10 +191,13 @@
         <th class="px-3 py-2 text-left text-sm font-medium tracking-wider border border-gray-300"
           >Recommended File Size (300 DPI)</th
         >
+        <th class="px-3 py-2 text-left text-sm font-medium tracking-wider border border-gray-300"
+          >Use Case</th
+        >
       </tr>
     </thead>
     <tbody class="bg-white divide-y divide-gray-200">
-      {#each [{ width: 3, height: 5 }, { width: 4, height: 6 }, { width: 4, height: 9 }, { width: 5, height: 7 }, { width: 5, height: 8 }, { width: 5.5, height: 8.5 }, { width: 6, height: 9 }, { width: 8.5, height: 11 }, { width: 11, height: 17 }, { width: 12, height: 18 }, { width: 18, height: 24 }, { width: 24, height: 36 }] as { width, height }}
+      {#each commonSizes as { width, height, useCase }}
         <tr>
           <td class="px-3 py-2 whitespace-nowrap text-sm border border-gray-300"
             >{width}" x {height}"</td
@@ -147,6 +205,7 @@
           <td class="px-3 py-2 whitespace-nowrap text-sm border border-gray-300"
             >{truncate(width * 300)}px x {truncate(height * 300)}px</td
           >
+          <td class="px-3 py-2 whitespace-nowrap text-sm border border-gray-300">{useCase}</td>
         </tr>
       {/each}
     </tbody>
